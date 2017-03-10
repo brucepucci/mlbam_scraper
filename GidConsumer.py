@@ -1,9 +1,19 @@
+import os
+
 from celery import Celery
 
 import library.XmlMovers as XmlMovers
 import library.SqlWriters as SqlWriters
 
 app = Celery('GidConsumer', broker='pyamqp://guest@localhost//')
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
+
+INNING_DIR = os.path.join(DATA_DIR, 'inning_all')
+LINESCORE_DIR = os.path.join(DATA_DIR, 'linescore')
+BOXSCORE_DIR = os.path.join(DATA_DIR, 'boxscore')
+PLAYER_DIR = os.path.join(DATA_DIR, 'players')
 
 @app.task
 def extract_inning(gid_url):

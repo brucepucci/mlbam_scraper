@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from xml.etree import cElementTree as etree
 
+from library.mysql_models import *
+
 def read_file(file_loc):
     with open(file_loc, 'rt') as f:
         text = f.read()
@@ -8,6 +10,7 @@ def read_file(file_loc):
 
 
 class BaseParser(metaclass=ABCMeta):
+    """Read/Parse XML, transform into table stuctures specified in mysql_models"""
     def __init__(self, file_loc):
         self.file_loc = file_loc
         self.gid = next(x for x in file_loc.split('/') if
@@ -19,67 +22,9 @@ class BaseParser(metaclass=ABCMeta):
 
 
 class InningParser(BaseParser):
-    atbat_attribs = {
-        'away_team_runs',
-        'b',
-        'b_height',
-        'batter',
-        'des',
-        'event',
-        'home_team_runs',
-        'num',
-        'o',
-        'p_throws',
-        'pitcher',
-        's',
-        'stand',
-        'start_tfs'
-    }
-
-    runner_attribs = {
-        'end',
-        'event',
-        'event_num',
-        'id',
-        'score',
-        'start',
-    }
-
-    pitch_attribs = {
-        'ax',
-        'ay',
-        'az',
-        'break_angle',
-        'break_length',
-        'break_y',
-        'des',
-        'end_speed',
-        'id',
-        'nasty',
-        'pfx_x',
-        'pfx_z',
-        'pitch des',
-        'pitch_type',
-        'px',
-        'pz',
-        'spin_dir',
-        'spin_rate',
-        'start_speed',
-        'sz_bot',
-        'sz_top',
-        'tfs',
-        'type',
-        'type_confidence',
-        'vx0',
-        'vy0',
-        'vz0',
-        'x',
-        'x0',
-        'y',
-        'y0',
-        'z0',
-        'zone'
-    }
+    atbat_attribs = set(atbat.columns.keys()) - {'gid', 'inn', 'inn_half', 'b_team', 'p_team'}
+    runner_attribs = set(runner.columns.keys()) - {'gid', 'atbat_id'}
+    pitch_attribs = set(pitch.columns.keys()) - {'gid', 'atbat_id'}
 
     def process(self):
         xml_text = read_file(self.file_loc)
@@ -131,89 +76,12 @@ class InningParser(BaseParser):
 
 
 class RawBoxscoreParser(BaseParser):
-    boxscore_attribs = {
-        'attendance',
-        'home_league_id',
-        'start_time',
-        'venue_id',
-        'venue_name',
-        'weather',
-        'wind'
-    }
-
-    umpire_attribs = {
-        'id',
-        'name',
-        'position'
-    }
-
-    linescore_attribs = {
-        'away_team_errors',
-        'away_team_hits',
-        'away_team_runs',
-        'home_team_errors',
-        'home_team_hits',
-        'home_team_runs'
-    }
-
-    inning_line_score_attribs = {
-        'away',
-        'home',
-        'inning'
-    }
-
-    team_attribs = {
-        'id',
-        'losses',
-        'team_code',
-        'team_flag',
-        'wins'
-    }
-
-    pitcher_attribs = {
-        'ao',
-        'bb',
-        'bf',
-        'er',
-        'game_score',
-        'go',
-        'h',
-        'hr',
-        'id',
-        'np',
-        'out',
-        'pitch_order',
-        'pos',
-        's',
-        'so',
-        'r'
-    }
-
-    batter_attribs = {
-        'a',
-        'ab',
-        'ao',
-        'bat_order',
-        'bb',
-        'cs',
-        'd',
-        'e',
-        'fldg',
-        'hbp',
-        'hr',
-        'id',
-        'lob',
-        'po',
-        'pos',
-        'sac',
-        'r',
-        'rbi',
-        'sb',
-        'sf',
-        'so',
-        't',
-        'tb'
-    }
+    boxscore_attribs = set(boxscore.columns.keys()) - {'gid'}
+    umpire_attribs = set(umpire.columns.keys()) - {'gid'}
+    linescore_attribs = set(linescore.columns.keys()) - {'gid'}
+    team_attribs = set(team.columns.keys()) - {'gid'}
+    pitcher_attribs = set(pitcher.columns.keys()) - {'gid', 'team_code'}
+    batter_attribs = set(batter.columns.keys()) - {'gid', 'team_code'}
 
     def process(self):
         xml_text = read_file(self.file_loc)
@@ -236,14 +104,6 @@ class RawBoxscoreParser(BaseParser):
                 linescore.update({elem: None for elem in
                                   self.linescore_attribs - linescore.keys()})
                 yield 'linescore', linescore
-            elif elem.tag == 'inning_line_score':
-                inning_line_score = {
-                    'gid': self.gid,
-                    **{k: v for k, v in elem.attrib.items() if k in self.inning_line_score_attribs}
-                }
-                inning_line_score.update({elem: None for elem in
-                                          self.inning_line_score_attribs - inning_line_score.keys()})
-                yield 'linning_line_score', inning_line_score
             elif elem.tag == 'umpire':
                 umpire = {
                     'gid': self.gid,
@@ -284,59 +144,8 @@ class RawBoxscoreParser(BaseParser):
 
 
 class LinescoreParser(BaseParser):
-    inningscore_attribs = {
-        'inning',
-        'away_inning_runs',
-        'home_inning_runs'
-    }
-
-    game_attribs = {
-        'venue',
-        'game_pk',
-        'time_date',
-        'time_zone',
-        'ampm',
-        'first_pitch_et',
-        'away_time',
-        'away_time_zone',
-        'away_ampm',
-        'home_time',
-        'home_time_zone',
-        'home_ampm',
-        'venue_id',
-        'away_name_abbrev',
-        'home_name_abbrev',
-        'away_code',
-        'away_team_id',
-        'away_team_city',
-        'away_team_name',
-        'away_division',
-        'away_league_id',
-        'home_code',
-        'home_team_id',
-        'home_team_city',
-        'home_team_name',
-        'home_division',
-        'home_league_id',
-        'day',
-        'double_header_sw',
-        'away_games_back',
-        'home_games_back',
-        'away_games_back_wildcard',
-        'home_games_back_wildcard',
-        'venue_w_chan_loc',
-        'away_win',
-        'away_loss',
-        'home_win',
-        'home_loss',
-        'league',
-        'away_team_runs',
-        'home_team_runs',
-        'away_team_hits',
-        'home_team_hits',
-        'away_team_errors',
-        'home_team_errors'
-    }
+    inningscore_attribs = set(inningscore.columns.keys()) - {'gid'}
+    game_attribs = set(game.columns.keys()) - {'gid'}
 
     def process(self):
         xml_text = read_file(self.file_loc)
@@ -362,27 +171,8 @@ class LinescoreParser(BaseParser):
 
 
 class PlayerParser(BaseParser):
-    player_attribs = {
-        'id',
-        'first',
-        'last',
-        'num',
-        'boxname',
-        'rl',
-        'bats',
-        'position',
-        'team_abbv',
-        'team_id',
-        'bat_order'
-    }
-
-    coach_attribs = {
-        'id',
-        'position',
-        'first',
-        'last',
-        'num'
-    }
+    player_attribs = set(player.columns.keys()) - {'gid'}
+    coach_attribs = set(coach.columns.keys()) - {'gid'}
 
     def process(self):
         xml_text = read_file(self.file_loc)

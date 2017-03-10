@@ -7,6 +7,7 @@ VALID_DAYS = {str(day).zfill(2) for day in range(0, 32)}
 
 
 class GidScraper:
+    """Obatain regular season, completed game ids from mlbam_test"""
     year = slice(5, 9)
     month = slice(6, 8)
     day = slice(4, 6)
@@ -41,6 +42,7 @@ class GidScraper:
             return False
 
     def get_gids(self, base_url='http://gd2.mlb.com/components/game/mlb/'):
+        """Recursive calls to traverse file system for valid games"""
         soup = self.get_soup(base_url)
 
         for link in soup.find_all('a'):

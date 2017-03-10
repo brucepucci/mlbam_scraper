@@ -18,6 +18,7 @@ def write_file(text, destination):
 
 
 class BaseWriter(metaclass=ABCMeta):
+    """Given a valid game id download and move XML to local file system"""
     def __init__(self, gid_url):
         self.gid_url = gid_url
 

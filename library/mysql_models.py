@@ -1,0 +1,245 @@
+import sqlalchemy as sa
+
+engine = sa.create_engine('mysql+mysqldb://root@localhost:3306')
+meta = sa.MetaData()
+
+engine.execute("CREATE DATABASE IF NOT EXISTS mlbam_test;")
+engine.execute("USE mlbam_test;")
+
+atbat = sa.Table('atbat', meta,
+    sa.Column('away_team_runs', sa.Integer),
+    sa.Column('b', sa.Integer),
+    sa.Column('b_height', sa.String(255)),
+    sa.Column('b_team', sa.String(255)),
+    sa.Column('batter', sa.Integer),
+    sa.Column('des', sa.Text(65536)),
+    sa.Column('event', sa.String(255)),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('home_team_runs', sa.Integer),
+    sa.Column('inn', sa.Integer),
+    sa.Column('inn_half', sa.String(255)),
+    sa.Column('num', sa.Integer, primary_key=True),
+    sa.Column('o', sa.Integer),
+    sa.Column('p_team', sa.String(255)),
+    sa.Column('p_throws', sa.String(255)),
+    sa.Column('pitcher', sa.Integer),
+    sa.Column('s', sa.Integer),
+    sa.Column('stand', sa.String(255)),
+    sa.Column('start_tfs', sa.Integer)
+)
+
+pitch = sa.Table('pitch', meta,
+    sa.Column('atbat_id', sa.Integer),
+    sa.Column('ax', sa.Float),
+    sa.Column('ay', sa.Float),
+    sa.Column('az', sa.Float),
+    sa.Column('break_angle', sa.Float),
+    sa.Column('break_length', sa.Float),
+    sa.Column('break_y', sa.Float),
+    sa.Column('des', sa.Text(65536)),
+    sa.Column('end_speed', sa.Float),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('nasty', sa.Integer),
+    sa.Column('pfx_x', sa.Float),
+    sa.Column('pfx_z', sa.Float),
+    sa.Column('pitch_type', sa.String(255)),
+    sa.Column('px', sa.Float),
+    sa.Column('pz', sa.Float),
+    sa.Column('spin_dir', sa.Float),
+    sa.Column('spin_rate', sa.Float),
+    sa.Column('start_speed', sa.Float),
+    sa.Column('sz_bot', sa.Float),
+    sa.Column('sz_top', sa.Float),
+    sa.Column('tfs', sa.Integer),
+    sa.Column('type', sa.String(255)),
+    sa.Column('type_confidence', sa.Float),
+    sa.Column('vx0', sa.Float),
+    sa.Column('vy0', sa.Float),
+    sa.Column('vz0', sa.Float),
+    sa.Column('x', sa.Float),
+    sa.Column('x0', sa.Float),
+    sa.Column('y', sa.Float),
+    sa.Column('y0', sa.Float),
+    sa.Column('z0', sa.Float),
+    sa.Column('zone', sa.Integer)
+)
+
+runner = sa.Table('runner', meta,
+    sa.Column('atbat_id', sa.Integer, primary_key=True),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('start', sa.String(255)),
+    sa.Column('end', sa.String(255)),
+    sa.Column('event', sa.String(255)),
+    sa.Column('event_num', sa.Integer),
+    sa.Column('score', sa.String(255))
+)
+
+game = sa.Table('game', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('venue', sa.String(255)),
+    sa.Column('game_pk', sa.Integer),
+    sa.Column('time_date', sa.String(255)),
+    sa.Column('time_zone', sa.String(255)),
+    sa.Column('ampm', sa.String(255)),
+    sa.Column('first_pitch_et', sa.String(255)),
+    sa.Column('away_time', sa.String(255)),
+    sa.Column('away_time_zone', sa.String(255)),
+    sa.Column('away_ampm', sa.String(255)),
+    sa.Column('home_time', sa.String(255)),
+    sa.Column('home_time_zone', sa.String(255)),
+    sa.Column('home_ampm', sa.String(255)),
+    sa.Column('venue_id', sa.Integer),
+    sa.Column('away_name_abbrev', sa.String(255)),
+    sa.Column('home_name_abbrev', sa.String(255)),
+    sa.Column('away_code', sa.String(255)),
+    sa.Column('away_team_id', sa.Integer),
+    sa.Column('away_team_city', sa.String(255)),
+    sa.Column('away_team_name', sa.String(255)),
+    sa.Column('away_division', sa.String(255)),
+    sa.Column('away_league_id', sa.Integer),
+    sa.Column('home_code', sa.String(255)),
+    sa.Column('home_team_id', sa.Integer),
+    sa.Column('home_team_city', sa.String(255)),
+    sa.Column('home_team_name', sa.String(255)),
+    sa.Column('home_division', sa.String(255)),
+    sa.Column('home_league_id', sa.Integer),
+    sa.Column('day', sa.String(255)),
+    sa.Column('double_header_sw', sa.String(255)),
+    sa.Column('away_games_back', sa.Float),
+    sa.Column('home_games_back', sa.Float),
+    sa.Column('away_games_back_wildcard', sa.Float),
+    sa.Column('home_games_back_wildcard', sa.Float),
+    sa.Column('venue_w_chan_loc', sa.String(255)),
+    sa.Column('away_win', sa.Integer),
+    sa.Column('away_loss', sa.Integer),
+    sa.Column('home_win', sa.Integer),
+    sa.Column('home_loss', sa.Integer),
+    sa.Column('league', sa.String(255)),
+    sa.Column('away_team_runs', sa.Integer),
+    sa.Column('home_team_runs', sa.Integer),
+    sa.Column('away_team_hits', sa.Integer),
+    sa.Column('home_team_hits', sa.Integer),
+    sa.Column('away_team_errors', sa.Integer),
+    sa.Column('home_team_errors', sa.Integer)
+)
+
+inningscore = sa.Table('inningscore', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('inning', sa.Integer, primary_key=True),
+    sa.Column('away_inning_runs', sa.Integer),
+    sa.Column('home_inning_runs', sa.Integer)
+)
+
+coach = sa.Table('coach', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('position', sa.String(255)),
+    sa.Column('first', sa.String(255)),
+    sa.Column('last', sa.String(255)),
+    sa.Column('num', sa.Integer)
+)
+
+player = sa.Table('player', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('first', sa.String(255)),
+    sa.Column('last', sa.String(255)),
+    sa.Column('num', sa.Integer),
+    sa.Column('boxname', sa.String(255)),
+    sa.Column('rl', sa.String(255)),
+    sa.Column('bats', sa.String(255)),
+    sa.Column('position', sa.String(255)),
+    sa.Column('team_abbv', sa.String(255)),
+    sa.Column('team_id', sa.Integer),
+    sa.Column('bat_order', sa.Integer)
+)
+
+batter = sa.Table('batter', meta,
+    sa.Column('a', sa.Integer),
+    sa.Column('ab', sa.Integer),
+    sa.Column('ao', sa.Integer),
+    sa.Column('bat_order', sa.Integer),
+    sa.Column('bb', sa.Integer),
+    sa.Column('cs', sa.Integer),
+    sa.Column('d', sa.Integer),
+    sa.Column('e', sa.Integer),
+    sa.Column('fldg', sa.Integer),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('hbp', sa.Integer),
+    sa.Column('hr', sa.Integer),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('lob', sa.Integer),
+    sa.Column('po', sa.Integer),
+    sa.Column('pos', sa.String(255)),
+    sa.Column('sac', sa.Integer),
+    sa.Column('r', sa.Integer),
+    sa.Column('rbi', sa.Integer),
+    sa.Column('sb', sa.Integer),
+    sa.Column('sf', sa.Integer),
+    sa.Column('so', sa.Integer),
+    sa.Column('t', sa.Integer),
+    sa.Column('tb', sa.Integer),
+    sa.Column('team_code', sa.String(255))
+)
+
+boxscore = sa.Table('boxscore', meta,
+    sa.Column('attendance', sa.String(255)),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('home_league_id', sa.Integer),
+    sa.Column('start_time', sa.String(255)),
+    sa.Column('venue_id', sa.Integer),
+    sa.Column('venue_name', sa.String(255)),
+    sa.Column('weather', sa.String(255)),
+    sa.Column('wind', sa.String(255))
+)
+
+linescore = sa.Table('linescore', meta,
+    sa.Column('away_team_errors', sa.Integer),
+    sa.Column('away_team_hits', sa.Integer),
+    sa.Column('away_team_runs', sa.Integer),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('home_team_errors', sa.Integer),
+    sa.Column('home_team_hits', sa.Integer),
+    sa.Column('home_team_runs', sa.Integer)
+)
+
+pitcher = sa.Table('pitcher', meta,
+    sa.Column('ao', sa.Integer),
+    sa.Column('bb', sa.Integer),
+    sa.Column('bf', sa.Integer),
+    sa.Column('er', sa.Integer),
+    sa.Column('game_score', sa.Integer),
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('go', sa.Integer),
+    sa.Column('h', sa.Integer),
+    sa.Column('hr', sa.Integer),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('np', sa.Integer),
+    sa.Column('outs', sa.Integer),
+    sa.Column('pitch_order', sa.Integer),
+    sa.Column('pos', sa.String(255)),
+    sa.Column('s', sa.Integer),
+    sa.Column('so', sa.Integer),
+    sa.Column('r', sa.Integer),
+    sa.Column('team_code', sa.String(255))
+)
+
+team = sa.Table('team', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('losses', sa.Integer),
+    sa.Column('team_code', sa.String(255)),
+    sa.Column('team_flag', sa.String(255)),
+    sa.Column('wins', sa.Integer)
+)
+
+umpire = sa.Table('umpire', meta,
+    sa.Column('gid', sa.String(255), primary_key=True),
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('name', sa.String(255)),
+    sa.Column('position', sa.String(255))
+)
+
+meta.create_all(engine)

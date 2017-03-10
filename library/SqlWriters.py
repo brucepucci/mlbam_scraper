@@ -6,6 +6,7 @@ import library.XmlParsers as XmlParsers
 
 
 class BaseWriter(metaclass=ABCMeta):
+    """Parse XML files and write to database"""
     def __init__(self, source_file):
         self.source_file = source_file
 

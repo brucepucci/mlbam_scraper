@@ -10,6 +10,7 @@ def read_file(file_loc):
 
 
 class BaseParser(metaclass=ABCMeta):
+    """Read/Parse XML, transform into table stuctures specified in mysql_models"""
     def __init__(self, file_loc):
         self.file_loc = file_loc
         self.gid = next(x for x in file_loc.split('/') if

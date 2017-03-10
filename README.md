@@ -1,7 +1,7 @@
 # mlbam_scraper
 Scrape MLB Advanced Media Pitch F/X Data
 
-Terrible description of how to use (will add more at a later date)...
+### Terrible description of how to use (will add more at a later date)...
 
 1) `brew install mysql (on a Mac)`
 

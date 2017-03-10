@@ -36,6 +36,15 @@ class InningParser(BaseParser):
         'start_tfs'
     }
 
+    runner_attribs = {
+        'end',
+        'event',
+        'event_num',
+        'id',
+        'score',
+        'start',
+    }
+
     pitch_attribs = {
         'ax',
         'ay',
@@ -109,6 +118,14 @@ class InningParser(BaseParser):
                 }
                 pitch.update({elem: None for elem in self.pitch_attribs - pitch.keys()})
                 yield 'pitch', pitch
+            elif elem.tag == 'runner':
+                runner = {
+                    'gid': self.gid,
+                    'atbat_id': atbat_id,
+                    **{k: v for k, v in elem.attrib.items() if k in self.runner_attribs}
+                }
+                runner.update({elem: None for elem in self.runner_attribs - runner.keys()})
+                yield 'runner', runner
             else:
                 pass
 
@@ -266,5 +283,125 @@ class RawBoxscoreParser(BaseParser):
                 pass
 
 
-if __name__ == '__main__':
-    print(list(InningParser('/Users/bruce/Projects/mlbam_scraper/data/mlbam_2016/inning_all/gid_2016_04_03_nynmlb_kcamlb_1.xml').process()))
+class LinescoreParser(BaseParser):
+    inningscore_attribs = {
+        'inning',
+        'away_inning_runs',
+        'home_inning_runs'
+    }
+
+    game_attribs = {
+        'venue',
+        'game_pk',
+        'time_date',
+        'time_zone',
+        'ampm',
+        'first_pitch_et',
+        'away_time',
+        'away_time_zone',
+        'away_ampm',
+        'home_time',
+        'home_time_zone',
+        'home_ampm',
+        'venue_id',
+        'away_name_abbrev',
+        'home_name_abbrev',
+        'away_code',
+        'away_team_id',
+        'away_team_city',
+        'away_team_name',
+        'away_division',
+        'away_league_id',
+        'home_code',
+        'home_team_id',
+        'home_team_city',
+        'home_team_name',
+        'home_division',
+        'home_league_id',
+        'day',
+        'double_header_sw',
+        'away_games_back',
+        'home_games_back',
+        'away_games_back_wildcard',
+        'home_games_back_wildcard',
+        'venue_w_chan_loc',
+        'away_win',
+        'away_loss',
+        'home_win',
+        'home_loss',
+        'league',
+        'away_team_runs',
+        'home_team_runs',
+        'away_team_hits',
+        'home_team_hits',
+        'away_team_errors',
+        'home_team_errors'
+    }
+
+    def process(self):
+        xml_text = read_file(self.file_loc)
+        xml_parsed = etree.fromstring(xml_text)
+
+        for elem in xml_parsed.iter():
+            if elem.tag == 'game':
+                game = {
+                    'gid': self.gid,
+                    **{k: v for k, v in elem.attrib.items() if k in self.game_attribs}
+                }
+                game.update({elem: None for elem in self.game_attribs - game.keys()})
+                yield 'game', game
+            elif elem.tag == 'linescore':
+                inningscore = {
+                    'gid': self.gid,
+                    **{k: v for k, v in elem.attrib.items() if k in self.inningscore_attribs}
+                }
+                inningscore.update({elem: None for elem in self.inningscore_attribs - inningscore.keys()})
+                yield 'inningscore', inningscore
+            else:
+                pass
+
+
+class PlayerParser(BaseParser):
+    player_attribs = {
+        'id',
+        'first',
+        'last',
+        'num',
+        'boxname',
+        'rl',
+        'bats',
+        'position',
+        'team_abbv',
+        'team_id',
+        'bat_order'
+    }
+
+    coach_attribs = {
+        'id',
+        'position',
+        'first',
+        'last',
+        'num'
+    }
+
+    def process(self):
+        xml_text = read_file(self.file_loc)
+        xml_parsed = etree.fromstring(xml_text)
+
+        for elem in xml_parsed.iter():
+            if elem.tag == 'coach':
+                coach = {
+                    'gid': self.gid,
+                    **{k: v for k, v in elem.attrib.items() if k in self.coach_attribs}
+                }
+                coach.update({elem: None for elem in self.coach_attribs - coach.keys()})
+                yield 'coach', coach
+            elif elem.tag == 'player':
+                player = {
+                    'gid': self.gid,
+                    **{k: v for k, v in elem.attrib.items() if k in self.player_attribs}
+                }
+                player.update({elem: None for elem in self.player_attribs - player.keys()})
+                yield 'player', player
+            else:
+                pass

@@ -28,3 +28,11 @@ def table_inning(gid_path):
 @app.task
 def table_rawboxscore(gid_path):
     return SqlWriters.RawBoxscoreWriter(gid_path).process()
+
+@app.task
+def table_player(gid_path):
+    return SqlWriters.PlayerWriter(gid_path).process()
+
+@app.task
+def table_linescore(gid_path):
+    return SqlWriters.LinescoreWriter(gid_path).process()

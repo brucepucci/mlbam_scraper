@@ -44,6 +44,9 @@ class InningWriter(BaseWriter):
     insert_pitch_query = read_query(os.path.join(INSERT_SQL_DIR,
                                                  'inning',\
                                                  'insert_pitch.sql'))
+    insert_runner_query = read_query(os.path.join(INSERT_SQL_DIR,
+                                                  'inning',\
+                                                  'insert_runner.sql'))
 
     def process(self):
         for table, vals in XmlParsers.InningParser(self.source_file).process():
@@ -51,6 +54,8 @@ class InningWriter(BaseWriter):
                 write_row(self.insert_atbat_query, vals)
             elif table == 'pitch':
                 write_row(self.insert_pitch_query, vals)
+            elif table == 'runner':
+                write_row(self.insert_runner_query, vals)
             else:
                 pass
 
@@ -97,5 +102,39 @@ class RawBoxscoreWriter(BaseWriter):
             else:
                 pass
 
-if __name__ == '__main__':
-    RawBoxscoreWriter('/Users/bruce/Projects/mlbam_scraper/data/mlbam_2016/boxscore/gid_2016_04_03_nynmlb_kcamlb_1.xml').process()
+
+class LinescoreWriter(BaseWriter):
+    insert_inningscore_query = read_query(os.path.join(INSERT_SQL_DIR,
+                                                 'linescore',
+                                                 'insert_inningscore.sql'))
+    insert_game_query = read_query(os.path.join(INSERT_SQL_DIR,
+                                                 'linescore',\
+                                                 'insert_game.sql'))
+
+    def process(self):
+        for table, vals in XmlParsers.LinescoreParser(self.source_file).process():
+            if table == 'game':
+                write_row(self.insert_game_query, vals)
+            elif table == 'inningscore':
+                write_row(self.insert_inningscore_query, vals)
+            else:
+                pass
+
+
+class PlayerWriter(BaseWriter):
+    insert_player_query = read_query(os.path.join(INSERT_SQL_DIR,
+                                                 'player',
+                                                 'insert_player.sql'))
+    insert_coach_query = read_query(os.path.join(INSERT_SQL_DIR,
+                                                 'player',\
+                                                 'insert_coach.sql'))
+
+    def process(self):
+        for table, vals in XmlParsers.PlayerParser(self.source_file).process():
+            if table == 'player':
+                write_row(self.insert_player_query, vals)
+            elif table == 'coach':
+                write_row(self.insert_coach_query, vals)
+            else:
+                pass
+

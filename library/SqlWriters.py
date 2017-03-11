@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import os
 
-from library.mysql_models import *
+from library.MySqlModels import *
 import library.XmlParsers as XmlParsers
 
 

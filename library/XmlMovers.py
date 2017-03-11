@@ -6,11 +6,11 @@ import requests
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_PATH, '..', 'data')
 
-
 def make_folder(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
+make_folder(DATA_DIR)
 
 def write_file(text, destination):
     with open(destination, 'w') as f:
@@ -28,10 +28,12 @@ class BaseWriter(metaclass=ABCMeta):
 
     @property
     def destination(self):
+        """filepath of where xml file will be saved"""
         return os.path.join(self.destination_root, self.gid + '.xml')
 
     @property
     def source(self):
+        """url of xml source to me downloaded"""
         return os.path.join(self.gid_url, self.extension)
 
     def process(self):

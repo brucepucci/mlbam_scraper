@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from xml.etree import cElementTree as etree
 
-from library.mysql_models import *
+from library.MySqlModels import *
 
 def read_file(file_loc):
     with open(file_loc, 'rt') as f:

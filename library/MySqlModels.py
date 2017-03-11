@@ -1,10 +1,10 @@
 import sqlalchemy as sa
 
-engine = sa.create_engine('mysql+mysqldb://root@localhost:3306')
+sa.create_engine('mysql+mysqldb://root@localhost:3306').execute(
+    "CREATE DATABASE IF NOT EXISTS mlbam_test;")
+engine = sa.create_engine('mysql+mysqldb://root@localhost:3306/mlbam_test',
+                          pool_recycle=1)
 meta = sa.MetaData()
-
-engine.execute("CREATE DATABASE IF NOT EXISTS mlbam_test;")
-engine.execute("USE mlbam_test;")
 
 atbat = sa.Table('atbat', meta,
     sa.Column('away_team_runs', sa.Integer),
@@ -66,9 +66,9 @@ pitch = sa.Table('pitch', meta,
 )
 
 runner = sa.Table('runner', meta,
-    sa.Column('atbat_id', sa.Integer, primary_key=True),
-    sa.Column('gid', sa.String(255), primary_key=True),
-    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('atbat_id', sa.Integer),
+    sa.Column('gid', sa.String(255)),
+    sa.Column('id', sa.Integer),
     sa.Column('start', sa.String(255)),
     sa.Column('end', sa.String(255)),
     sa.Column('event', sa.String(255)),

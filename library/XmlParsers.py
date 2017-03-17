@@ -22,9 +22,19 @@ class BaseParser(metaclass=ABCMeta):
 
 
 class InningParser(BaseParser):
-    atbat_attribs = set(atbat.columns.keys()) - {'gid', 'inn', 'inn_half', 'b_team', 'p_team'}
+    atbat_attribs = set(atbat.columns.keys()) - {'gid', 'inn', 'inn_half',
+                                                 'b_team', 'p_team'}
     runner_attribs = set(runner.columns.keys()) - {'gid', 'atbat_id'}
-    pitch_attribs = set(pitch.columns.keys()) - {'gid', 'atbat_id'}
+    pitch_attribs = set(pitch.columns.keys()) - {'gid', 'atbat_id',
+                                                 'balls', 'strikes'}
+
+    ball_des = {'Intent Ball', 'Pitchout', 'Automatic Ball',
+                'Ball In Dirt', 'Ball'}
+    strike_des = {'Called Strike', 'Swinging Strike (Blocked)',
+                  'Swinging Strike', 'Swinging Pitchout',
+                  'Automatic Strike', 'Missed Bunt',
+                 'Foul', 'Foul Tip' , 'Foul Pitchout',
+                  'Foul Bunt', 'Foul (Runner Going)'}
 
     def process(self):
         xml_text = read_file(self.file_loc)
@@ -44,6 +54,7 @@ class InningParser(BaseParser):
                     batting_team = home_team
                     fielding_team = away_team
             elif elem.tag == 'atbat':
+                balls, strikes = 0, 0
                 atbat_id = elem.attrib['num']
                 atbat = {
                     'gid': self.gid,
@@ -59,9 +70,15 @@ class InningParser(BaseParser):
                 pitch = {
                     'gid': self.gid,
                     'atbat_id': atbat_id,
+                    'balls': balls,
+                    'strikes': strikes,
                     **{k: v for k, v in elem.attrib.items() if k in self.pitch_attribs}
                 }
                 pitch.update({elem: None for elem in self.pitch_attribs - pitch.keys()})
+                if elem.attrib['des'] in self.ball_des:
+                    balls += 1
+                if elem.attrib['des'] in self.strike_des and strikes < 2:
+                    strikes += 1
                 yield 'pitch', pitch
             elif elem.tag == 'runner':
                 runner = {

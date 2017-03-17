@@ -1,9 +1,9 @@
 import sqlalchemy as sa
 
 sa.create_engine('mysql+mysqldb://root@localhost:3306').execute(
-    "CREATE DATABASE IF NOT EXISTS mlbam_test;")
-engine = sa.create_engine('mysql+mysqldb://root@localhost:3306/mlbam_test',
-                          pool_recycle=1)
+    "CREATE DATABASE IF NOT EXISTS mlbam;")
+engine = sa.create_engine('mysql+mysqldb://root@localhost:3306/mlbam',
+                          pool_recycle=60)
 meta = sa.MetaData()
 
 atbat = sa.Table('atbat', meta,
@@ -33,6 +33,7 @@ pitch = sa.Table('pitch', meta,
     sa.Column('ax', sa.Float),
     sa.Column('ay', sa.Float),
     sa.Column('az', sa.Float),
+    sa.Column('balls', sa.Integer),
     sa.Column('break_angle', sa.Float),
     sa.Column('break_length', sa.Float),
     sa.Column('break_y', sa.Float),
@@ -49,6 +50,7 @@ pitch = sa.Table('pitch', meta,
     sa.Column('spin_dir', sa.Float),
     sa.Column('spin_rate', sa.Float),
     sa.Column('start_speed', sa.Float),
+    sa.Column('strikes', sa.Integer),
     sa.Column('sz_bot', sa.Float),
     sa.Column('sz_top', sa.Float),
     sa.Column('tfs', sa.Integer),

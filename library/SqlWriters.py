@@ -17,34 +17,47 @@ class BaseWriter(metaclass=ABCMeta):
 
 class InningWriter(BaseWriter):
     def process(self):
+        atbats = list()
+        pitches = list()
+        runners = list()
         for table, vals in XmlParsers.InningParser(self.source_file).process():
             if table == 'atbat':
-                engine.execute(atbat.insert(vals))
+                atbats.append(vals)
             elif table == 'pitch':
-                engine.execute(pitch.insert(vals))
+                pitches.append(vals)
             elif table == 'runner':
-                engine.execute(runner.insert(vals))
+                runners.append(vals)
             else:
                 pass
+        engine.execute(atbat.insert(), atbats)
+        engine.execute(pitch.insert(), pitches)
+        engine.execute(runner.insert(), runners)
 
 
 class RawBoxscoreWriter(BaseWriter):
     def process(self):
+        batters = list()
+        pitchers = list()
+        umpires = list()
+
         for table, vals in XmlParsers.RawBoxscoreParser(self.source_file).process():
             if table == 'batter':
-                engine.execute(batter.insert(vals))
+                batters.append(vals)
             elif table == 'boxscore':
                 engine.execute(boxscore.insert(vals))
             elif table == 'linescore':
                 engine.execute(linescore.insert(vals))
             elif table == 'pitcher':
-                engine.execute(pitcher.insert(vals))
+                pitchers.append(vals)
             elif table == 'team':
                 engine.execute(team.insert(vals))
             elif table == 'umpire':
-                engine.execute(umpire.insert(vals))
+                pitchers.append(umpires)
             else:
                 pass
+        engine.execute(batter.insert(), batters)
+        engine.execute(pitcher.insert(), pitchers)
+        engine.execute(umpire.insert(), umpires)
 
 
 class LinescoreWriter(BaseWriter):
@@ -60,10 +73,15 @@ class LinescoreWriter(BaseWriter):
 
 class PlayerWriter(BaseWriter):
     def process(self):
+        players = list()
+        coaches = list()
         for table, vals in XmlParsers.PlayerParser(self.source_file).process():
             if table == 'player':
-                engine.execute(player.insert(vals))
+                players.append(vals)
             elif table == 'coach':
-                engine.execute(coach.insert(vals))
+                coaches.append(vals)
             else:
                 pass
+        engine.execute(player.insert(), players)
+        engine.execute(coach.insert(), coaches)
+
